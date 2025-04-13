@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Attendance System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+    }
+
+    .page {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 800px;
+    }
+
+    h2, h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1a242f;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .student {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 6px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .present-btn, .absent-btn {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .present-btn {
+      background-color: #27ae60;
+      color: white;
+    }
+
+    .absent-btn {
+      background-color: #c0392b;
+      color: white;
+    }
+
+    .selected {
+      box-shadow: 0 0 5px #333;
+      transform: scale(1.05);
+    }
+
+    .submit-btn {
+      margin-top: 20px;
+      background-color: #2980b9;
+    }
+
+    .submit-btn:hover {
+      background-color: #1f618d;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      display: none;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      text-align: center;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #eee;
+    }
+
+    .attendance-cell.present {
+      background-color: #27ae60;
+      color: white;
+    }
+
+    .attendance-cell.absent {
+      background-color: #c0392b;
+      color: white;
+    }
+
+    .logout-btn {
+      margin-top: 20px;
+      background-color: #e74c3c;
+      width: 150px;
+      margin-left: auto;
+      margin-right: auto;
+      display: none;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #studentName {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="page active">
+    <div class="container">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Username (Roll or 'admin')" autocomplete="off">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <!-- Admin Attendance Page -->
+  <div id="adminPage" class="page">
+    <div class="container">
+      <h1>Admin - Mark Attendance</h1>
+      <div class="controls">
+        <input type="date" id="attendanceDate">
+        <select id="subjectSelectAdmin">
+          <option value="">Select Subject</option>
+          <option value="COMMON">COMMON</option>
+          <option value="DCN">DCN</option>
+          <option value="JAVA">JAVA</option>
+          <option value="MIC">MIC</option>
+          <option value="EES">EES</option>
+          <option value="UI/UX">UI/UX</option>
+          <option value="PWP">PWP</option>
+        </select>
+      </div>
+
+      <form id="attendanceForm">
+        <div class="student" data-roll="1201" data-name="Abhishek Band">
+          <span>Abhishek Band</span>
+          <div class="btn-group">
+            <button type="button" class="present-btn" onclick="markAttendance(this, 'Present')">Present</button>
+            <button type="button" class="absent-btn" onclick="markAttendance(this, 'Absent')">Absent</button>
+          </div>
+        </div>
+        <div class="student" data-roll="1202" data-name="Yash Barbaile">
+          <span>Yash Barbaile</span>
+          <div class="btn-group">
+            <button type="button" class="present-btn" onclick="markAttendance(this, 'Present')">Present</button>
+            <button type="button" class="absent-btn" onclick="markAttendance(this, 'Absent')">Absent</button>
+          </div>
+        </div>
+
+        <button type="button" class="submit-btn" onclick="submitAttendance()">Submit</button>
+      </form>
+
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Student Page -->
+  <div id="studentPage" class="page">
+    <div class="container">
+      <h1>Student Attendance Summary</h1>
+      <div id="studentName"></div>
+
+      <label for="subjectSelectStudent">Select Subject:</label>
+      <select id="subjectSelectStudent">
+        <option value="">Select Subject</option>
+        <option value="COMMON">COMMON</option>
+        <option value="DCN">DCN</option>
+        <option value="JAVA">JAVA</option>
+        <option value="MIC">MIC</option>
+        <option value="EES">EES</option>
+        <option value="UI/UX">UI/UX</option>
+        <option value="PWP">PWP</option>
+      </select>
+
+      <button type="button" class="submit-btn" onclick="displayAttendance()">Submit</button>
+
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody"></tbody>
+      </table>
+
+      <button id="studentLogout" class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    const attendanceData = {};
+
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
+
+      if (user === "admin" && pass === "admin@123") {
+        showPage('adminPage');
+      } else if (user === pass && /^12\d{2}$/.test(user)) {
+        showPage('studentPage');
+        const studentName = getStudentName(user);
+        document.getElementById('studentName').innerHTML = "Student: " + studentName;
+        document.getElementById("attendanceTable").style.display = "none";
+        document.getElementById("studentLogout").style.display = "none";
+      } else {
+        alert("Invalid credentials.");
+      }
+    }
+
+    function getStudentName(rollNumber) {
+      const students = {
+        "1201": "Abhishek Band",
+        "1202": "Yash Barbaile",
+      };
+      return students[rollNumber] || "Unknown Student";
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    function markAttendance(button, status) {
+      const studentDiv = button.closest('.student');
+      const roll = studentDiv.getAttribute('data-roll');
+      const name = studentDiv.getAttribute('data-name');
+      const date = document.getElementById('attendanceDate').value;
+      const subject = document.getElementById('subjectSelectAdmin').value;
+
+      const presentBtn = studentDiv.querySelector('.present-btn');
+      const absentBtn = studentDiv.querySelector('.absent-btn');
+
+      presentBtn.classList.remove('selected');
+      absentBtn.classList.remove('selected');
+      if (status === 'Present') presentBtn.classList.add('selected');
+      else absentBtn.classList.add('selected');
+
+      if (!attendanceData[subject]) attendanceData[subject] = {};
+      if (!attendanceData[subject][roll]) attendanceData[subject][roll] = {};
+
+      attendanceData[subject][roll][date] = status;
+    }
+
+    function submitAttendance() {
+      alert("Attendance submitted (not saved permanently - demo only).");
+    }
+
+    function displayAttendance() {
+      const subject = document.getElementById("subjectSelectStudent").value;
+      if (subject === "") {
+        alert("Please select a subject.");
+        return;
+      }
+
+      const tbody = document.getElementById("attendanceBody");
+      tbody.innerHTML = "";
+
+      const studentRoll = document.getElementById("username").value;
+      const attendance = attendanceData[subject] && attendanceData[subject][studentRoll] || {};
+
+      for (let day = 1; day <= 31; day++) {
+        const dateStr = `2025-04-${String(day).padStart(2, '0')}`;
+        const tr = document.createElement("tr");
+
+        const tdDate = document.createElement("td");
+        tdDate.textContent = day;
+        tr.appendChild(tdDate);
+
+        const tdStatus = document.createElement("td");
+        const status = attendance[dateStr] || "";
+        tdStatus.textContent = status;
+        tr.appendChild(tdStatus);
+
+        tbody.appendChild(tr);
+      }
+
+      document.getElementById("attendanceTable").style.display = "table";
+      document.getElementById("studentLogout").style.display = "block";
+    }
+
+    function logout() {
+      showPage('loginPage');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    }
+  </script>
+</body>
+</html>
